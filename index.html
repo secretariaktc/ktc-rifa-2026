@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sorteo Libros de Dharma — KTC 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0f0a28;font-family:Arial,sans-serif;min-height:100vh;padding:16px}
+.header{background:linear-gradient(135deg,#2B1B5E,#1a1040,#3a1a3a);border-radius:12px;padding:18px 24px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;border:1px solid #8B6914}
+.htitle{font-size:17px;font-weight:bold;color:#F5C842;letter-spacing:0.5px}
+.hsub{font-size:12px;color:#c9b8f0;margin-top:3px}
+.hdate{font-size:12px;color:#F5C842;margin-top:2px;opacity:.85}
+.stats{display:flex;gap:10px}
+.stat{background:rgba(255,255,255,.08);border:1px solid rgba(245,200,66,.25);border-radius:8px;padding:8px 14px;text-align:center;min-width:72px}
+.stat-n{font-size:22px;font-weight:bold;color:#F5C842}
+.stat-l{font-size:11px;color:#c9b8f0;margin-top:1px}
+.premios{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-bottom:14px}
+.premio{background:#1a1040;border:1px solid rgba(245,200,66,.3);border-radius:8px;padding:9px 12px}
+.p-title{font-size:12px;font-weight:bold;color:#F5C842;margin-bottom:3px}
+.p-text{font-size:11px;color:#c9b8f0;line-height:1.5}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.controls input{width:140px;padding:8px 10px;font-size:14px;border:1px solid rgba(245,200,66,.4);border-radius:8px;background:#1a1040;color:#F5C842;outline:none}
+.controls input::placeholder{color:#8870b0}
+.btn{padding:8px 16px;font-size:13px;font-weight:bold;border-radius:8px;cursor:pointer;border:none;transition:opacity .15s}
+.btn-sep{background:#8B6914;color:#FFF8DC}
+.btn-sep:hover{opacity:.85}
+.btn-vend{background:#2d6e2d;color:#e8f5e8}
+.btn-vend:hover{opacity:.85}
+.btn-lib{background:#2B1B5E;border:1px solid #8870b0;color:#c9b8f0}
+.btn-lib:hover{opacity:.85}
+.btn-reset{background:transparent;border:1px solid #6b3030;color:#c07070;font-size:12px}
+.btn-reset:hover{background:#6b3030;color:#fff}
+.saved{font-size:11px;color:#5cb85c;display:flex;align-items:center;gap:5px;opacity:0;transition:opacity .5s}
+.saved.show{opacity:1}
+.legend{display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:6px;font-size:12px;color:#c9b8f0}
+.dot{width:14px;height:14px;border-radius:4px;flex-shrink:0}
+.dot-av{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3)}
+.dot-so{background:#8B6914;border:1px solid #F5C842}
+.dot-ve{background:#2d6e2d;border:1px solid #5cb85c}
+.grid-wrap{background:#1a1040;border:1px solid rgba(245,200,66,.25);border-radius:10px;padding:14px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
+.num{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:bold;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.09);color:#e8e0ff;transition:transform .1s,background .15s;user-select:none}
+.num:hover{transform:scale(1.1);border-color:rgba(245,200,66,.7);color:#F5C842}
+.num.separado{background:#8B6914;border-color:#F5C842;color:#FFF8DC}
+.num.separado:hover{transform:scale(1.1)}
+.num.vendido{background:#2d6e2d;border-color:#5cb85c;color:#c8f0c8;text-decoration:line-through;cursor:default}
+.num.vendido:hover{transform:none}
+.export-bar{background:#1a1040;border:1px solid rgba(245,200,66,.25);border-radius:10px;padding:12px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.export-bar span{font-size:12px;color:#c9b8f0;font-weight:bold}
+.btn-exp{background:rgba(245,200,66,.12);border:1px solid rgba(245,200,66,.4);color:#F5C842;padding:7px 14px;font-size:12px;border-radius:7px;cursor:pointer;font-weight:bold}
+.btn-exp:hover{background:rgba(245,200,66,.25)}
+.footer{text-align:center;font-size:11px;color:#8870b0;margin-top:6px;padding-bottom:8px}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:100}
+.modal{background:#1a1040;border:1px solid rgba(245,200,66,.4);border-radius:12px;padding:24px;max-width:320px;width:90%}
+.modal h3{font-size:16px;font-weight:bold;color:#F5C842;margin-bottom:8px}
+.modal p{font-size:13px;color:#c9b8f0;margin-bottom:16px}
+.modal-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+@media(max-width:600px){
+  .header{flex-direction:column}
+  .stats{width:100%;justify-content:space-between}
+  .grid .num{font-size:11px}
+  .htitle{font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="htitle">SORTEO DE LIBROS DE DHARMA — KTC</div>
+    <div class="hsub">Kagyu Thubten Choling &nbsp;·&nbsp; Valor del número: $10.000 &nbsp;·&nbsp; 100 números</div>
+    <div class="hdate">11 de junio &nbsp;·&nbsp; 19 hs &nbsp;·&nbsp; Con la presencia de Lama Rinchen</div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-n" id="s-disp">100</div><div class="stat-l">disponibles</div></div>
+    <div class="stat"><div class="stat-n" id="s-sep">0</div><div class="stat-l">reservados</div></div>
+    <div class="stat"><div class="stat-n" id="s-vend">0</div><div class="stat-l">vendidos</div></div>
+  </div>
+</div>
+
+<div class="premios">
+  <div class="premio"><div class="p-title">🥇 1er Premio</div><div class="p-text">Las cien mil canciones de Milarepa, tomo 1 y 2<br>Ediciones Rokpa</div></div>
+  <div class="premio"><div class="p-title">🥈 2do Premio</div><div class="p-text">Madre Liberadora · Lama Drubgyu Tenpa<br>Ediciones Chabsel</div></div>
+  <div class="premio"><div class="p-title">🥉 3er Premio</div><div class="p-text">El corazón del camino · Lama Zopa Rinpoche<br>Ediciones Dharma</div></div>
+</div>
+
+<div class="controls">
+  <input type="number" id="input-n" placeholder="Número (1-100)" min="1" max="100"/>
+  <button class="btn btn-sep" onclick="accion('separado')">Reservar</button>
+  <button class="btn btn-vend" onclick="accion('vendido')">Vendido</button>
+  <button class="btn btn-lib" onclick="accion('disponible')">Liberar</button>
+  <button class="btn btn-reset" onclick="resetAll()">Reiniciar todo</button>
+  <div class="saved" id="saved-msg">&#10003; Guardado</div>
+</div>
+
+<div class="legend">
+  <div class="leg"><div class="dot dot-av"></div> Disponible</div>
+  <div class="leg"><div class="dot dot-so"></div> Reservado</div>
+  <div class="leg"><div class="dot dot-ve"></div> Vendido</div>
+</div>
+
+<div class="grid-wrap">
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="export-bar">
+  <span>Exportar para story:</span>
+  <button class="btn-exp" onclick="exportStory('disponible')">Disponibles</button>
+  <button class="btn-exp" onclick="exportStory('separado')">Reservados</button>
+  <button class="btn-exp" onclick="exportStory('todos')">Todos con estado</button>
+  <button class="btn-exp" onclick="copiarTexto()">Copiar resumen</button>
+</div>
+
+<div class="footer">
+  WhatsApp: +54 9 11 7363 9534 &nbsp;·&nbsp; secretariaktc@kagyuarg.org
+  &nbsp;·&nbsp; <span id="ultima-actualizacion"></span>
+</div>
+
+<div id="modal-bg" class="modal-bg" style="display:none">
+  <div class="modal">
+    <h3 id="m-title"></h3>
+    <p id="m-body"></p>
+    <div class="modal-btns">
+      <button class="btn btn-lib" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-sep" id="m-sep" onclick="mAccion('separado')">Reservar</button>
+      <button class="btn btn-vend" id="m-vend" onclick="mAccion('vendido')">Vendido</button>
+      <button class="btn btn-reset" id="m-lib" onclick="mAccion('disponible')" style="display:none">Liberar</button>
+    </div>
+  </div>
+</div>
+
+<canvas id="cv" style="display:none"></canvas>
+
+<script>
+const STORAGE_KEY = 'ktc_rifa_2026';
+let state = {};
+let mNum = null;
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      state = JSON.parse(saved);
+      for (let i = 1; i <= 100; i++) {
+        if (!state[i]) state[i] = 'disponible';
+      }
+    } else {
+      for (let i = 1; i <= 100; i++) state[i] = 'disponible';
+    }
+  } catch(e) {
+    for (let i = 1; i <= 100; i++) state[i] = 'disponible';
+  }
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  localStorage.setItem(STORAGE_KEY + '_fecha', new Date().toLocaleString('es-AR'));
+  const msg = document.getElementById('saved-msg');
+  msg.classList.add('show');
+  setTimeout(() => msg.classList.remove('show'), 2000);
+  updateFecha();
+}
+
+function updateFecha() {
+  const f = localStorage.getItem(STORAGE_KEY + '_fecha');
+  if (f) document.getElementById('ultima-actualizacion').textContent = 'Última actualización: ' + f;
+}
+
+function getN() { return parseInt(document.getElementById('input-n').value) || null; }
+
+function accion(st) {
+  const n = getN();
+  if (!n || n < 1 || n > 100) { alert('Ingresá un número del 1 al 100'); return; }
+  state[n] = st;
+  saveState();
+  render();
+}
+
+function resetAll() {
+  if (!confirm('¿Reiniciar todos los números? Esta acción no se puede deshacer.')) return;
+  for (let i = 1; i <= 100; i++) state[i] = 'disponible';
+  saveState();
+  render();
+}
+
+function render() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  let d = 0, s = 0, v = 0;
+  for (let i = 1; i <= 100; i++) {
+    const st = state[i];
+    if (st === 'disponible') d++;
+    else if (st === 'separado') s++;
+    else v++;
+    const el = document.createElement('div');
+    el.className = 'num' + (st === 'vendido' ? ' vendido' : st === 'separado' ? ' separado' : '');
+    el.textContent = String(i).padStart(2, '0');
+    el.onclick = () => openModal(i);
+    grid.appendChild(el);
+  }
+  document.getElementById('s-disp').textContent = d;
+  document.getElementById('s-sep').textContent = s;
+  document.getElementById('s-vend').textContent = v;
+}
+
+function openModal(n) {
+  mNum = n;
+  const st = state[n];
+  const nombres = { disponible: 'Disponible', separado: 'Reservado', vendido: 'Vendido' };
+  document.getElementById('m-title').textContent = 'Número ' + String(n).padStart(2, '0');
+  document.getElementById('m-body').textContent = 'Estado actual: ' + nombres[st];
+  document.getElementById('m-sep').style.display = st !== 'separado' ? '' : 'none';
+  document.getElementById('m-vend').style.display = st !== 'vendido' ? '' : 'none';
+  document.getElementById('m-lib').style.display = st !== 'disponible' ? '' : 'none';
+  document.getElementById('modal-bg').style.display = 'flex';
+}
+function closeModal() { document.getElementById('modal-bg').style.display = 'none'; mNum = null; }
+function mAccion(st) { if (mNum) { state[mNum] = st; saveState(); render(); closeModal(); } }
+
+document.getElementById('modal-bg').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+function copiarTexto() {
+  const d = [], s = [], v = [];
+  for (let i = 1; i <= 100; i++) {
+    const n = String(i).padStart(2, '0');
+    if (state[i] === 'disponible') d.push(n);
+    else if (state[i] === 'separado') s.push(n);
+    else v.push(n);
+  }
+  const txt = [
+    'SORTEO DE LIBROS DE DHARMA — KTC',
+    '11 de junio · 19 hs · Con Lama Rinchen',
+    '',
+    `DISPONIBLES (${d.length}): ${d.join(', ') || 'ninguno'}`,
+    `RESERVADOS (${s.length}): ${s.join(', ') || 'ninguno'}`,
+    `VENDIDOS (${v.length}): ${v.join(', ') || 'ninguno'}`,
+    '',
+    'WhatsApp: +54 9 11 7363 9534',
+    'secretariaktc@kagyuarg.org'
+  ].join('\n');
+  navigator.clipboard.writeText(txt).then(() => alert('Copiado al portapapeles'));
+}
+
+function rRect(ctx, x, y, w, h, r, fill) {
+  ctx.fillStyle = fill;
+  ctx.beginPath();
+  ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath(); ctx.fill();
+}
+
+function exportStory(tipo) {
+  const cv = document.getElementById('cv');
+  cv.width = 1080; cv.height = 1920;
+  const ctx = cv.getContext('2d');
+
+  const grd = ctx.createLinearGradient(0, 0, 1080, 1920);
+  grd.addColorStop(0, '#2B1B5E'); grd.addColorStop(0.5, '#1a1040'); grd.addColorStop(1, '#3a1a3a');
+  ctx.fillStyle = grd; ctx.fillRect(0, 0, 1080, 1920);
+
+  ctx.strokeStyle = 'rgba(245,200,66,0.07)'; ctx.lineWidth = 1;
+  for (let x = 0; x < 1080; x += 54) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,1920); ctx.stroke(); }
+  for (let y = 0; y < 1920; y += 54) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(1080,y); ctx.stroke(); }
+
+  ctx.strokeStyle = '#8B6914'; ctx.lineWidth = 5;
+  ctx.strokeRect(20, 20, 1040, 1880);
+  ctx.strokeStyle = 'rgba(245,200,66,0.3)'; ctx.lineWidth = 1.5;
+  ctx.strokeRect(30, 30, 1020, 1860);
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#F5C842'; ctx.font = 'bold 52px Arial';
+  ctx.fillText('SORTEO DE LIBROS DE DHARMA', 540, 115);
+  ctx.fillStyle = '#c9b8f0'; ctx.font = '30px Arial';
+  ctx.fillText('en el KTC — Kagyu Thubten Choling', 540, 160);
+
+  ctx.strokeStyle = 'rgba(245,200,66,0.35)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(80, 185); ctx.lineTo(1000, 185); ctx.stroke();
+
+  const labels = { disponible: 'NÚMEROS DISPONIBLES', separado: 'NÚMEROS RESERVADOS', todos: 'ESTADO DE TODOS LOS NÚMEROS' };
+  ctx.fillStyle = '#F5C842'; ctx.font = 'bold 36px Arial';
+  ctx.fillText(labels[tipo], 540, 232);
+
+  let count = tipo === 'todos' ? 100 : Object.values(state).filter(s => s === tipo).length;
+  ctx.fillStyle = '#c9b8f0'; ctx.font = '24px Arial';
+  ctx.fillText(tipo === 'todos' ? '100 números en total' : `${count} número${count !== 1 ? 's' : ''}`, 540, 270);
+
+  const cols = 10, cell = 84, gap = 9;
+  const gridW = cols * cell + (cols - 1) * gap;
+  const sx = (1080 - gridW) / 2, sy = 310;
+
+  for (let i = 1; i <= 100; i++) {
+    const idx = i - 1, col = idx % cols, row = Math.floor(idx / cols);
+    const x = sx + col * (cell + gap), y = sy + row * (cell + gap);
+    const st = state[i];
+    let bg, tc;
+    if (tipo === 'todos') {
+      if (st === 'disponible') { bg = 'rgba(255,255,255,0.10)'; tc = '#e8e0ff'; }
+      else if (st === 'separado') { bg = '#8B6914'; tc = '#FFF8DC'; }
+      else { bg = '#2d6e2d'; tc = '#c8f0c8'; }
+    } else {
+      bg = tipo === 'separado' ? '#8B6914' : 'rgba(255,255,255,0.13)';
+      tc = tipo === 'separado' ? '#FFF8DC' : '#e8e0ff';
+    }
+    rRect(ctx, x, y, cell, cell, 10, bg);
+    ctx.strokeStyle = tipo === 'todos' && st === 'vendido' ? '#5cb85c' : 'rgba(245,200,66,0.45)';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(x + 0.75, y + 0.75, cell - 1.5, cell - 1.5);
+    ctx.fillStyle = tc; ctx.font = 'bold 26px Arial'; ctx.textAlign = 'center';
+    ctx.fillText(String(i).padStart(2, '0'), x + cell / 2, y + cell / 2 + 9);
+  }
+
+  if (tipo === 'todos') {
+    const ly = sy + 5 * (cell + gap) + 28;
+    [['rgba(255,255,255,0.13)', '#e8e0ff', 'Disponible'], ['#8B6914', '#FFF8DC', 'Reservado'], ['#2d6e2d', '#c8f0c8', 'Vendido']]
+      .forEach(([bg, tc, lb], i) => {
+        const lx = 140 + i * 270;
+        rRect(ctx, lx, ly, 34, 34, 6, bg);
+        ctx.fillStyle = tc; ctx.font = 'bold 18px Arial'; ctx.textAlign = 'left';
+        ctx.fillText(lb, lx + 44, ly + 24);
+      });
+  }
+
+  const by = 1760;
+  ctx.strokeStyle = 'rgba(245,200,66,0.35)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(80, by - 16); ctx.lineTo(1000, by - 16); ctx.stroke();
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#F5C842'; ctx.font = 'bold 34px Arial';
+  ctx.fillText('11 DE JUNIO · 19 HS', 540, by + 22);
+  ctx.fillStyle = '#c9b8f0'; ctx.font = '26px Arial';
+  ctx.fillText('Con la presencia de Lama Rinchen en el KTC', 540, by + 62);
+  ctx.fillStyle = 'rgba(245,200,66,0.75)'; ctx.font = '21px Arial';
+  ctx.fillText('WhatsApp: +54 9 11 7363 9534', 540, by + 100);
+  ctx.fillText('secretariaktc@kagyuarg.org', 540, by + 128);
+  ctx.fillStyle = '#8B6914'; ctx.font = '19px Arial';
+  ctx.fillText('Valor del número: $10.000 · 100 números disponibles', 540, by + 158);
+
+  const link = document.createElement('a');
+  link.download = `KTC_sorteo_${tipo}_${new Date().toLocaleDateString('es-AR').replace(/\//g,'-')}.png`;
+  link.href = cv.toDataURL('image/png');
+  link.click();
+}
+
+loadState();
+render();
+updateFecha();
+</script>
+</body>
+</html>
