@@ -796,25 +796,31 @@ function cargarBackupInicial() {
     ventas[i] = null;
   }
 
-  // vendidos
   const datos = [
-    {n:7,  nombre:"Julieta Galparsoro", whatsapp:"+54 9 2236 16-2111"},
-    {n:9,  nombre:"Leandra Pantoja", whatsapp:"+54 9 11 7362-1204"},
-    {n:11, nombre:"Mariana Iriarte", whatsapp:"+54 9 3815 11-6124"},
-    {n:12, nombre:"Julieta Galparsoro", whatsapp:"+54 9 2236 16-2111"},
-    {n:13, nombre:"Rocio Bugallo", whatsapp:"+54 9 2944 55-6951"},
-    {n:21, nombre:"", whatsapp:""},
-    {n:22, nombre:"", whatsapp:""}
+    ["07","Julieta Galparsoro","+54 9 2236 16-2111","vendido","27/4/2026, 03:25:13"],
+    ["09","Leandra Pantoja","+54 9 11 7362-1204","vendido","27/4/2026, 03:23:04"],
+    ["11","Mariana Iriarte","+54 9 3815 11-6124","vendido","27/4/2026, 03:55:13"],
+    ["12","Julieta Galparsoro","+54 9 2236 16-2111","vendido","27/4/2026, 03:25:19"],
+    ["13","Rocio Bugallo","+54 9 2944 55-6951","vendido","27/4/2026, 02:56:19"],
+    ["21","Leandra Pantoja","+54 9 11 7362-1204","vendido","27/4/2026, 03:23:14"],
+    ["22","Mony Duret","+54 9 11 6360-0022","vendido","27/4/2026, 03:37:53"],
+    ["46","Claudia Berrino","+54 9 11 6640-9196","vendido","27/4/2026, 03:15:45"],
+    ["54","Leandra Pantoja","+54 9 11 7362-1204","vendido","27/4/2026, 03:23:27"],
+    ["55","Rocio Bugallo","+54 9 2944 55-6951","vendido","27/4/2026, 02:57:11"],
+    ["96","Claudia Berrino","+54 9 11 6640-9196","vendido","27/4/2026, 03:16:23"]
   ];
 
   datos.forEach(d => {
-    state[d.n] = 'vendido';
-    ventas[d.n] = {
-      numero: d.n,
-      nombre: d.nombre,
-      whatsapp: d.whatsapp,
-      estado: 'vendido',
-      fecha: new Date().toLocaleString('es-AR')
+    const n = parseInt(d[0]);
+
+    state[n] = d[3];
+
+    ventas[n] = {
+      numero: n,
+      nombre: d[1],
+      whatsapp: d[2],
+      estado: d[3],
+      fecha: d[4]
     };
   });
 }
