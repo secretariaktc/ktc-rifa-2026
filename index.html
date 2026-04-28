@@ -279,8 +279,13 @@ let waHref   = '';
 
 // ── GITHUB I/O ────────────────────────────────────────
 function setSyncStatus(s, msg) {
-  document.getElementById('sync-dot').className = 'sync-dot ' + s;
-  document.getElementById('sync-msg').textContent = msg;
+  const dot = document.getElementById('sync-dot');
+  const txt = document.getElementById('sync-msg');
+
+  if (!dot || !txt) return;
+
+  dot.className = 'sync-dot ' + s;
+  txt.textContent = msg;
 }
 
 async function loadGH() {
@@ -314,7 +319,7 @@ async function saveGH() {
     const r = await fetch(GH_API, { method:'PUT', headers: ghHeaders(), body: JSON.stringify(body) });
     const j = await r.json();
     if (j.content) fileSha = j.content.sha;
-    setSyncStatus('ok', 'Guardado · ' + hoy());
+    setSyncStatus('ok', 'Datos locales cargados');
   } catch(e) {
     setSyncStatus('err', 'Error al guardar');
   }
