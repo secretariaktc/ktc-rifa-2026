@@ -288,7 +288,7 @@ async function loadGH() {
   try {
     const r = await fetch(GH_API, { headers: ghHeaders() });
     if (r.status === 404) {
-      initEmpty(); await saveGH(); return;
+      initEmpty(); saveLocal(); return;
     }
     const j = await r.json();
     fileSha = j.sha;
@@ -729,8 +729,92 @@ function copiarTexto(){
 document.getElementById('modal-num').addEventListener('click',e=>{if(e.target===document.getElementById('modal-num'))closeNum()});
 document.getElementById('modal-ticket').addEventListener('click',e=>{if(e.target===document.getElementById('modal-ticket'))closeTicket()});
 
-// ── INIT ─────────────────────────────────────────────
-loadGH();
+// ── STORAGE LOCAL ───────────────────────
+function setSyncStatus(s, msg) {
+  const dot = document.getElementById('sync-dot');
+  const txt = document.getElementById('sync-msg');
+  if (!dot || !txt) return;
+  dot.className = 'sync-dot ' + s;
+  txt.textContent = msg;
+}
+
+function saveLocal() {
+  const data = {
+    state,
+    ventas,
+    updated: new Date().toISOString()
+  };
+  localStorage.setItem('ktc_rifa_data', JSON.stringify(data));
+  setSyncStatus('ok', 'Guardado local · ' + hoy());
+}
+
+function loadLocal() {
+  setSyncStatus('saving', 'Cargando datos...');
+
+  const raw = localStorage.getItem('ktc_rifa_data');
+
+  if (!raw) {
+    cargarBackupInicial();
+    saveLocal();
+    render();
+    renderSorteo();
+    return;
+  }
+
+  try {
+    const data = JSON.parse(raw);
+    state  = data.state  || {};
+    ventas = data.ventas || {};
+
+    for (let i=1;i<=100;i++) {
+      if (!state[i]) state[i]='disponible';
+      if (!ventas[i]) ventas[i]=null;
+    }
+
+    setSyncStatus('ok', 'Datos locales cargados');
+  } catch (e) {
+    initEmpty();
+    setSyncStatus('err', 'Error al leer datos');
+  }
+
+  render();
+  renderSorteo();
+}
+
+// ── BACKUP INICIAL ─────────────────────
+function cargarBackupInicial() {
+  state = {};
+  ventas = {};
+
+  for (let i=1;i<=100;i++) {
+    state[i] = 'disponible';
+    ventas[i] = null;
+  }
+
+  // vendidos
+  const datos = [
+    {n:7,  nombre:"Julieta Galparsoro", whatsapp:"+54 9 2236 16-2111"},
+    {n:9,  nombre:"Leandra Pantoja", whatsapp:"+54 9 11 7362-1204"},
+    {n:11, nombre:"Mariana Iriarte", whatsapp:"+54 9 3815 11-6124"},
+    {n:12, nombre:"Julieta Galparsoro", whatsapp:"+54 9 2236 16-2111"},
+    {n:13, nombre:"Rocio Bugallo", whatsapp:"+54 9 2944 55-6951"},
+    {n:21, nombre:"", whatsapp:""},
+    {n:22, nombre:"", whatsapp:""}
+  ];
+
+  datos.forEach(d => {
+    state[d.n] = 'vendido';
+    ventas[d.n] = {
+      numero: d.n,
+      nombre: d.nombre,
+      whatsapp: d.whatsapp,
+      estado: 'vendido',
+      fecha: new Date().toLocaleString('es-AR')
+    };
+  });
+}
+  // ── INIT ─────────────────────────────────────────────
+loadLocal();
 </script>
 </body>
 </html>
