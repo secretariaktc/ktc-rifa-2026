@@ -415,25 +415,41 @@ function closeNum() { document.getElementById('modal-num').style.display='none';
 async function confirmar(nuevoEstado) {
   const nombre = (document.getElementById('f-nom')?.value||'').trim();
   const wa     = (document.getElementById('f-wa')?.value||'').trim();
-  if (!nombre) { document.getElementById('f-nom').style.borderColor='#e24b4a'; alert('Ingresá el nombre del comprador'); return; }
+
+  if (!nombre) return;
 
   const n = curNum;
-  state[n]  = nuevoEstado;
-  ventas[n] = { numero:n, nombre, whatsapp:wa, estado:nuevoEstado, fecha: new Date().toLocaleString('es-AR') };
+
+  state[n] = nuevoEstado;
+
+  ventas[n] = {
+    numero: n,
+    nombre,
+    whatsapp: wa,
+    estado: nuevoEstado,
+    fecha: new Date().toLocaleString('es-AR')
+  };
+
+  saveLocal(); // 🔥 ESTA LÍNEA ES LA CLAVE
 
   closeNum();
   render();
-  await saveGH();
   mostrarTicket(n);
 }
-
 async function cambiarEstado(n, nuevoEstado) {
   state[n] = nuevoEstado;
-  if (nuevoEstado === 'disponible') { ventas[n] = null; }
-  else if (ventas[n]) ventas[n].estado = nuevoEstado;
+
+  if (nuevoEstado === 'disponible') {
+    ventas[n] = null;
+  } else if (ventas[n]) {
+    ventas[n].estado = nuevoEstado;
+  }
+
+  saveLocal(); // 🔥 CLAVE
+
   closeNum();
   render();
-  await saveGH();
+
   if (nuevoEstado !== 'disponible') mostrarTicket(n);
 }
 
