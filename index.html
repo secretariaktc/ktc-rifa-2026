@@ -204,7 +204,9 @@ tr:hover td{background:rgba(245,200,66,.03)}
 <div class="panel" id="panel-registro">
   <div class="search-bar">
     <input type="text" id="search-input" placeholder="Buscar por nombre, WhatsApp o número..." oninput="renderRegistro()"/>
-    <button class="btn btn-gold" onclick="exportCSV()">Exportar CSV</button>
+    <button class="btn btn-gold" onclick="exportCSV()">Exportar CSV</button><button class="btn btn-gold" onclick="exportJSON()">Backup JSON</button>
+<button class="btn btn-green" onclick="importCSV()">Importar CSV</button>
+<input type="file" id="csvFile" accept=".csv" style="display:none" onchange="handleCSV(event)">
     <button class="btn btn-danger" onclick="resetAll()">Reiniciar todo</button>
   </div>
   <div class="table-wrap">
@@ -830,8 +832,99 @@ function cargarBackupInicial() {
     };
   });
 }
+  
+  function exportJSON() {
+  const data = {
+    state,
+    ventas,
+    fecha: new Date().toISOString()
+  };
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'KTC_backup_rifa.json';
+  a.click();
+}
+
+  function importCSV() {
+  document.getElementById('csvFile').click();
+}
+
+  function handleCSV(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function(event) {
+    const text = event.target.result;
+
+    const lines = text.split('\n').slice(1); // saltea encabezado
+
+    // reset
+    state = {};
+    ventas = {};
+    for (let i=1;i<=100;i++) {
+      state[i] = 'disponible';
+      ventas[i] = null;
+    }
+
+    lines.forEach(line => {
+      if (!line.trim()) return;
+
+      const parts = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+
+      if (!parts || parts.length < 5) return;
+
+      const numero = parseInt(parts[0].replace(/"/g,''));
+      const nombre = parts[1].replace(/"/g,'');
+      const whatsapp = parts[2].replace(/"/g,'');
+      const estado = parts[3].replace(/"/g,'');
+      const fecha = parts[4].replace(/"/g,'');
+
+      state[numero] = estado;
+
+      ventas[numero] = {
+        numero,
+        nombre,
+        whatsapp,
+        estado,
+        fecha
+      };
+    });
+
+    saveLocal();
+    render();
+    renderRegistro();
+    renderSorteo();
+
+    alert('✅ CSV importado correctamente');
+  };
+
+  reader.readAsText(file);
+}
+  
+  let autosaveTimer = null;
+
+function iniciarAutoGuardado() {
+  // cada 10 segundos (podés cambiarlo)
+  autosaveTimer = setInterval(() => {
+    try {
+      saveLocal();
+      console.log('💾 Autoguardado', new Date().toLocaleTimeString());
+    } catch(e) {
+      console.warn('Error en autoguardado', e);
+    }
+  }, 10000);
+}
   // ── INIT ─────────────────────────────────────────────
 loadLocal();
+iniciarAutoGuardado();
+
+window.addEventListener('beforeunload', () => {
+  saveLocal();
+});
 </script>
 </body>
 </html>
